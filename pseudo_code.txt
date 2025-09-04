@@ -1,0 +1,13 @@
+First we initialize constants and initial conditions.
+
+constants: intial x: x_0 = 0, mass m = 1000, gravity constant: g = 9.8
+
+initial conditions: initial height: h, initial x velocity v_x, initial y velocity v_y, drag constant c_0, and time step: dt. These initial conditions will be set by the user.
+
+We want to start writing lists of the x, y, v_x, and v_y values, so we'll add the initial conditons of x_0, h, v_y, and v_x as the first entry into each of these four lists. 
+
+Then use the given initial conditons to calculate the force vector components: F_x and F_y. So should have a function for calculating the force in x and y. 
+
+Then have a function which calculates the next time step given a initial v_x, v_y, x, y, F_x, F_y, and dt. 
+
+Then we can make a while loop that check for when y <= 0, then use the force function, next positions function, then adds to the lists of x, y, v_x, v_y, which will repeat until the next y position will be equal or less than zero. 
