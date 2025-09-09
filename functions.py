@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.constants import g as grav_const
 
 
@@ -53,3 +52,10 @@ def calculate_KE(vel_vec,m):
 
 def calculate_PE(pos_vec,m):
     return m*grav_const*pos_vec["pos_y"]
+
+def analytic_function(vel_y_init,vel_x_init,t,y_init,x_init):
+    y_pos = y_init + vel_y_init * np.array(t) - 1/2 * grav_const * np.array(t) **2
+    x_pos = x_init +  vel_x_init * np.array(t)
+    y_vel = vel_y_init - grav_const * np.array(t)
+    x_vel = vel_x_init - grav_cosst * np.array(t)
+    return x_pos,y_pos, x_vel, y_vel
