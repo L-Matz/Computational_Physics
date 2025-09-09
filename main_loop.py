@@ -16,6 +16,9 @@ pos_hist_y.append(pos_vec["pos_y"])
 vel_hist_x.append(vel_vec["vel_x"])
 vel_hist_y.append(vel_vec["vel_y"])
 
+#For the case of no drag. Find the analytic total energy.
+analytic_TE = func.calculate_KE(vel_vec,m) + func.calculate_PE(pos_vec,m)
+
 KE.append(func.calculate_KE(vel_vec,m))
 PE.append(func.calculate_PE(pos_vec,m))
 TE.append(KE[-1] + PE[-1])
@@ -42,7 +45,7 @@ while pos_vec["pos_y"] >= 0:
 #We want to save our time, position_x, position_y
 out_dict = {"time":time_list ,"pos_hist_x":pos_hist_x ,"pos_hist_y":pos_hist_y}
 
-analytic_x, analytic_y = func.analytic_function(vel_y_init,vel_x_init, time_list, y_init, x_init)
+analytic_x, analytic_y, analytic_vx, analytic_vy = func.analytic_function(vel_y_init,vel_x_init, time_list, y_init, x_init)
 
 #Here we can start plotting things for the while loop for any of our variables. 
 fig, axs = plt.subplots(ncols = 2,layout='constrained')
