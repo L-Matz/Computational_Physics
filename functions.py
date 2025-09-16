@@ -3,48 +3,52 @@ from scipy.constants import g as grav_const
 
 def initial_conditions_horizontal():
     #For horizontal spring:
-    pos_x = float(input("Enter initial displacement from the equilibrium position [m]: "))
+    dis_x = float(input("Enter initial displacement from the equilibrium position [m]: "))
     vel_x = float(input("Enter initial velocity [m/s]: "))
     m = float(input("Enter mass [kg]: "))
     dt = float(input("Enter time-step (s): "))
     k = float(input("Enter spring constant (N/m): "))
+    dis_vec = {"dis_x":dis_x, "dis_y":0}
+    vel_vec = {"vel_x":vel_x, "vel_y":0}
     
-    return vel_x, pos_x, k, m, dt
+    return vel_vec, dis_vec, k, m, dt
     
 def initial_conditions_vertical():
     #For vertical spring:
-    pos_y = float(input("Enter initial displacement from the equilibrium position [m]: "))
+    dis_y = float(input("Enter initial displacement from the equilibrium position [m]: "))
     vel_y = float(input("Enter initial velocity [m/s]: "))
     m = float(input("Enter mass [kg]: "))
     dt = float(input("Enter time-step (s): "))
     k = float(input("Enter spring constant (N/m): "))
+    dis_vec = {"dis_x":0, "dis_y":dis_y}
+    vel_vec = {"vel_x":0, "vel_y":vel_y}
     
-    return vel_y, pos_y, k, m, dt
+    return vel_vec, dis_vec, k, m, dt
 
-def update_force(vel_vec,C_d,m):
-    drag_mag = C_d*(vel_vec["vel_x"]**2 + vel_vec["vel_y"]**2)
+def update_force(dis_vec,dis_vec,k,m):
     grav_mag = m * grav_const
 
-    drag_angle = np.arctan2(vel_vec["vel_y"],vel_vec["vel_x"])
-    
-    Fd_x = -drag_mag * np.cos(drag_angle)
-    Fd_y = -drag_mag * np.sin(drag_angle)
+    Fs_x = -k * dis_vec["dis_x"]
+    Fs_y = -k * dis_vec["dis_y"]
     Fg_y = -grav_mag
-    force_vec = {"force_x":float(Fd_x), "force_y":float(Fg_y + Fd_y)}
+    force_vec = {"force_x":float(Fs_x), "force_y":float(Fg_y + Fs_y)}
     
     return force_vec
 
-def update_vel(force_vec,vel_vec,m,dt):
+def update_vel_explicit(force_vec,vel_vec,m,dt):
     accel_x,accel_y = force_vec["force_x"]/m, force_vec["force_y"]/m
 
     vel_vec["vel_x"], vel_vec["vel_y"] = vel_vec["vel_x"] + accel_x * dt, vel_vec["vel_y"] + accel_y * dt
 
     return vel_vec
 
-def update_pos(pos_vec,vel_vec,dt):
+def update_pos_explicit(pos_vec,vel_vec,dt):
     pos_vec["pos_x"], pos_vec["pos_y"] = pos_vec["pos_x"] + vel_vec["vel_x"] * dt, pos_vec["pos_y"] + vel_vec["vel_y"] * dt
 
     return pos_vec
+
+
+
 
 def calculate_KE(vel_vec,m):
     v_square = (vel_vec["vel_x"]**2 + vel_vec["vel_y"]**2)
