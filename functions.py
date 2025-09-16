@@ -1,16 +1,25 @@
 import numpy as np
 from scipy.constants import g as grav_const
 
-def initial_conditions():
-    pos_x, pos_y = input("Enter comma-separated initial position [m]: ").split(",")
-    vel_x, vel_y = input("Enter comma-separated initial velocity [m/s]: ").split(",")
+def initial_conditions_horizontal():
+    #For horizontal spring:
+    pos_x = float(input("Enter initial displacement from the equilibrium position [m]: "))
+    vel_x = float(input("Enter initial velocity [m/s]: "))
     m = float(input("Enter mass [kg]: "))
     dt = float(input("Enter time-step (s): "))
     k = float(input("Enter spring constant (N/m): "))
-    pos_vec = {"pos_x":float(pos_x), "pos_y": float(pos_y)}
-    vel_vec = {"vel_x":float(vel_x), "vel_y": float(vel_y)}
     
-    return vel_vec, pos_vec, k, m, dt
+    return vel_x, pos_x, k, m, dt
+    
+def initial_conditions_vertical():
+    #For vertical spring:
+    pos_y = float(input("Enter initial displacement from the equilibrium position [m]: "))
+    vel_y = float(input("Enter initial velocity [m/s]: "))
+    m = float(input("Enter mass [kg]: "))
+    dt = float(input("Enter time-step (s): "))
+    k = float(input("Enter spring constant (N/m): "))
+    
+    return vel_y, pos_y, k, m, dt
 
 def update_force(vel_vec,C_d,m):
     drag_mag = C_d*(vel_vec["vel_x"]**2 + vel_vec["vel_y"]**2)
