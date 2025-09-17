@@ -34,20 +34,31 @@ def update_force(dis_vec,dis_vec,k,m):
     force_vec = {"force_x":float(Fs_x), "force_y":float(Fg_y + Fs_y)}
     
     return force_vec
-
-def update_vel_explicit(force_vec,vel_vec,m,dt):
+    
+    #These next are euler's method of getting vel and x. 
+    #Due to the specifics of this problem, you can get explicit or semi-implicit depending on the input of the velocity in update_pos_euler.
+def update_vel_euler(force_vec,vel_vec,m,dt):
     accel_x,accel_y = force_vec["force_x"]/m, force_vec["force_y"]/m
 
     vel_vec["vel_x"], vel_vec["vel_y"] = vel_vec["vel_x"] + accel_x * dt, vel_vec["vel_y"] + accel_y * dt
 
     return vel_vec
-
-def update_pos_explicit(pos_vec,vel_vec,dt):
+def update_pos_euler(pos_vec,vel_vec,dt):
     pos_vec["pos_x"], pos_vec["pos_y"] = pos_vec["pos_x"] + vel_vec["vel_x"] * dt, pos_vec["pos_y"] + vel_vec["vel_y"] * dt
 
     return pos_vec
 
+    #These two will be for the second order method
+    #This first one is meant to take in the explicit and implicit results for the velocity: the velocity of the current step and the next step.
+def update_vel_trapezoid(vel_vec1,vel_vec2):
+    vel_vec = {"vel_x":(0.5*(vel_vec1["vel_x"] + vel_vec2["vel_x"])),"vel_y":(0.5*(vel_vec1["vel_y"] + vel_vec2["vel_y"]))}
+    
+    return vel_vec
+    #This function is meant to recieve the average velocity of the previous function and calculate the trapezoid position. I believe it may be redunant.
+def update_pos_trapezoid(pos_vec,avg_vel_vec,dt):
+    pos_vec["pos_x"], pos_vec["pos_y"] = pos_vec["pos_x"] + avg_vel_vec["vel_x"]* dt, pos_vec["pos_y"] + avg_vel_vec["vel_y"]* dt
 
+    return pos_vec
 
 
 def calculate_KE(vel_vec,m):
