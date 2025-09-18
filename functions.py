@@ -6,12 +6,13 @@ def initial_conditions_horizontal():
     dis_x = float(input("Enter initial displacement from the equilibrium position [m]: "))
     vel_x = float(input("Enter initial velocity [m/s]: "))
     m = float(input("Enter mass [kg]: "))
-    dt = float(input("Enter time-step (s): "))
     k = float(input("Enter spring constant (N/m): "))
+    tmax = float(input("Enter the amount of time for simulation to last [s]: "))
+    dt = float(input("Enter time-step (s): "))
     dis_vec = {"dis_x":dis_x, "dis_y":0}
     vel_vec = {"vel_x":vel_x, "vel_y":0}
     
-    return vel_vec, dis_vec, k, m, dt
+    return vel_vec, dis_vec, k, m, tmax, dt
     
 def initial_conditions_vertical():
     #For vertical spring:
@@ -25,13 +26,20 @@ def initial_conditions_vertical():
     
     return vel_vec, dis_vec, k, m, dt
 
-def update_force(dis_vec,dis_vec,k,m):
+def update_force_gravity(dis_vec,vel_vec,k,m):
     grav_mag = m * grav_const
 
     Fs_x = -k * dis_vec["dis_x"]
     Fs_y = -k * dis_vec["dis_y"]
     Fg_y = -grav_mag
     force_vec = {"force_x":float(Fs_x), "force_y":float(Fg_y + Fs_y)}
+    
+    return force_vec
+
+def update_force_no_gravity(dis_vec,vel_vec,k,m):
+    Fs_x = -k * dis_vec["dis_x"]
+    Fs_y = -k * dis_vec["dis_y"]
+    force_vec = {"force_x":float(Fs_x), "force_y":float(Fs_y)}
     
     return force_vec
     
@@ -43,10 +51,10 @@ def update_vel_euler(force_vec,vel_vec,m,dt):
     vel_vec["vel_x"], vel_vec["vel_y"] = vel_vec["vel_x"] + accel_x * dt, vel_vec["vel_y"] + accel_y * dt
 
     return vel_vec
-def update_pos_euler(pos_vec,vel_vec,dt):
-    pos_vec["pos_x"], pos_vec["pos_y"] = pos_vec["pos_x"] + vel_vec["vel_x"] * dt, pos_vec["pos_y"] + vel_vec["vel_y"] * dt
+def update_dis_euler(dis_vec,vel_vec,dt):
+    dis_vec["dis_x"], dis_vec["dis_y"] = dis_vec["dis_x"] + vel_vec["vel_x"] * dt, dis_vec["dis_y"] + vel_vec["vel_y"] * dt
 
-    return pos_vec
+    return dis_vec
 
     #These two will be for the second order method
     #This first one is meant to take in the explicit and implicit results for the velocity: the velocity of the current step and the next step.
@@ -55,38 +63,19 @@ def update_vel_trapezoid(vel_vec1,vel_vec2):
     
     return vel_vec
     #This function is meant to recieve the average velocity of the previous function and calculate the trapezoid position. I believe it may be redunant.
-def update_pos_trapezoid(pos_vec,avg_vel_vec,dt):
-    pos_vec["pos_x"], pos_vec["pos_y"] = pos_vec["pos_x"] + avg_vel_vec["vel_x"]* dt, pos_vec["pos_y"] + avg_vel_vec["vel_y"]* dt
+def update_pos_trapezoid(dis_vec,avg_vel_vec,dt):
+    dis_vec["dis_x"], dis_vec["dis_y"] = dis_vec["dis_x"] + avg_vel_vec["vel_x"]* dt, dis_vec["dis_y"] + avg_vel_vec["vel_y"]* dt
 
-    return pos_vec
+    return dis_vec
 
 
 def calculate_KE(vel_vec,m):
     v_square = (vel_vec["vel_x"]**2 + vel_vec["vel_y"]**2)
     return (1/2)*m*v_square
 
-def calculate_PE(pos_vec,m):
-    return m*grav_const*pos_vec["pos_y"]
+def calculate_PE(dis_vec,m,k):
+    potential_grav = m*grav_const*dis_vec["dis_y"]
+    potential_spring = 0.5 * k * (dis_vec["dis_x"]**2 + dis_vec["dis_y"]**2)
+    potential = potential_grav + potential_spring
+    return potential
 
-def analytic_function(vel_y_init,vel_x_init,t,y_init,x_init):
-    y_pos = y_init + vel_y_init * np.array(t) - 1/2 * grav_const * np.array(t) **2
-    x_pos = x_init +  vel_x_init * np.array(t)
-    y_vel = vel_y_init - grav_const * np.array(t)
-    x_vel = vel_x_init - grav_const * np.array(t)
-    return x_pos,y_pos, x_vel, y_vel
-
-def calculate_std(anal_x, anal_y, anal_vx, anal_vy, sim_x, sim_y, sim_vx, sim_vy, m):
-    diffx = np.array(anal_x) - np.array(sim_x)
-    diffsquarex = np.array(anal_x)**2 - np.array(sim_x)**2
-    stdx = np.sqrt(np.absolute(diffsquarex - diffx**2))
-    diffy = np.array(anal_y) - np.array(sim_y)
-    diffsquarey = np.array(anal_y)**2 - np.array(sim_y)**2
-    stdy = np.sqrt(np.absolute(diffsquarey - diffy**2))
-    sim_TE = 0.5*m*(np.array(sim_vx)**2 + np.array(sim_vy)**2) + grav_const*m*np.array(sim_y) 
-    anal_TE = 0.5*m*(np.array(anal_vx[0])**2 + np.array(anal_vy[0])**2) + grav_const*m*np.array(anal_y[0])
-    diffTE = sim_TE - anal_TE
-    diffsquareTE = sim_TE**2 - anal_TE**2
-    stdTE = np.sqrt(np.absolute(diffsquareTE - diffTE**2))
-    
-    return stdx, stdy, stdTE
-    
