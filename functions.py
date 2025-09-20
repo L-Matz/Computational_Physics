@@ -36,7 +36,7 @@ def update_force_gravity(dis_vec,vel_vec,k,m):
     
     return force_vec
 
-def update_force_no_gravity(dis_vec,vel_vec,k,m):
+def update_force_no_gravity(dis_vec,k):
     Fs_x = -k * dis_vec["dis_x"]
     Fs_y = -k * dis_vec["dis_y"]
     force_vec = {"force_x":float(Fs_x), "force_y":float(Fs_y)}
@@ -48,34 +48,35 @@ def update_force_no_gravity(dis_vec,vel_vec,k,m):
 def update_vel_euler(force_vec,vel_vec,m,dt):
     accel_x,accel_y = force_vec["force_x"]/m, force_vec["force_y"]/m
 
-    vel_vec["vel_x"], vel_vec["vel_y"] = vel_vec["vel_x"] + accel_x * dt, vel_vec["vel_y"] + accel_y * dt
+    nvel_vec = {"vel_x":0,"vel_y":0}
+    nvel_vec["vel_x"], nvel_vec["vel_y"] = vel_vec["vel_x"] + accel_x * dt, vel_vec["vel_y"] + accel_y * dt
 
-    return vel_vec
+    return nvel_vec
+    
+
 def update_dis_euler(dis_vec,vel_vec,dt):
-    dis_vec["dis_x"], dis_vec["dis_y"] = dis_vec["dis_x"] + vel_vec["vel_x"] * dt, dis_vec["dis_y"] + vel_vec["vel_y"] * dt
+    ndis_vec = {"dis_x":0,"dis_y":0}
+    ndis_vec["dis_x"], ndis_vec["dis_y"] = dis_vec["dis_x"] + vel_vec["vel_x"] * dt, dis_vec["dis_y"] + vel_vec["vel_y"] * dt
 
-    return dis_vec
+    return ndis_vec
 
     #These two will be for the second order method
     #This first one is meant to take in the explicit and implicit results for the velocity: the velocity of the current step and the next step.
-def update_vel_trapezoid(vel_vec1,vel_vec2):
-    vel_vec = {"vel_x":(0.5*(vel_vec1["vel_x"] + vel_vec2["vel_x"])),"vel_y":(0.5*(vel_vec1["vel_y"] + vel_vec2["vel_y"]))}
-    
-    return vel_vec
-    #This function is meant to recieve the average velocity of the previous function and calculate the trapezoid position. I believe it may be redunant.
-def update_pos_trapezoid(dis_vec,avg_vel_vec,dt):
-    dis_vec["dis_x"], dis_vec["dis_y"] = dis_vec["dis_x"] + avg_vel_vec["vel_x"]* dt, dis_vec["dis_y"] + avg_vel_vec["vel_y"]* dt
-
-    return dis_vec
-
+def update_vel_secondorder(vel_vec,dis_vec,k,m,dt):
+    mid_vec = {"vel_x":0,"vel_y":0}
+    mid_vec['vel_x'] = vel_vec['vel_x'] - (k/m) * dis_vec['dis_x'] * dt - (k/m) * dt * dt * 0.5 * vel_vec['vel_x'] + (k/m) * (k/m) * dt * dt * dt * 0.5 * dis_vec['dis_x']
+    mid_vec['vel_y'] = vel_vec['vel_y'] - (k/m) * dis_vec['dis_y'] * dt - (k/m) * dt * dt * 0.5 * vel_vec['vel_y'] + (k/m) * (k/m) * dt * dt * dt * 0.5 * dis_vec['dis_y']
+    return mid_vec
 
 def calculate_KE(vel_vec,m):
     v_square = (vel_vec["vel_x"]**2 + vel_vec["vel_y"]**2)
+    #v_square = vel_vec["vel_x"]**2
     return (1/2)*m*v_square
 
 def calculate_PE(dis_vec,m,k):
     potential_grav = m*grav_const*dis_vec["dis_y"]
     potential_spring = 0.5 * k * (dis_vec["dis_x"]**2 + dis_vec["dis_y"]**2)
     potential = potential_grav + potential_spring
+    #potential = 0.5 * k * (dis_vec["dis_x"]**2)
     return potential
 
